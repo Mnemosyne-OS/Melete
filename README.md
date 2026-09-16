@@ -30,10 +30,11 @@ one you configured in the app. It is free, and it always will be.
 > [!NOTE]
 > **Melete is at 0.1.0, and it has been used on Windows only.**
 >
-> It runs inside Mnemosyne OS, it carries 179 tests, and it has been driven by
-> hand on real courses. macOS and Linux have never been exercised, and the
-> version number says the rest: this is a first release. If it breaks on your
-> setup, that is the interesting case. Open an issue.
+> It runs inside Mnemosyne OS. The mind map, the schema, the flashcards and the
+> quiz have all been used on real courses. It carries 179 tests. macOS and Linux
+> have never been exercised, and the version number says the rest: this is a
+> first release. If it breaks on your setup, that is the interesting case. Open
+> an issue.
 
 ---
 
