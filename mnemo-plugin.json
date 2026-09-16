@@ -1,0 +1,27 @@
+{
+  "name": "@mnemosyne-plugins/melete",
+  "displayName": "Melete",
+  "version": "0.1.0",
+  "description": "Turn a course into a mind map, a schema, flashcards and a quiz you can rehearse. Import a PDF, a Word file or a photo of the lecture screen. Everything Melete makes is filed into its own vault, so Mnemosyne can recall it months later.",
+  "permissions": [
+    "vault:read",
+    "vault:write",
+    "model:infer",
+    "dialog:open"
+  ],
+  "repository": "https://github.com/Mnemosyne-OS/Melete",
+  "updateStrategy": "git",
+  "entrypoints": {
+    "renderer": "index.html"
+  },
+  "widgets": [
+    {
+      "id": "melete-main",
+      "icon": "🪶",
+      "name": "Melete",
+      "route": "index.html",
+      "defaultWidth": 1000,
+      "defaultHeight": 700
+    }
+  ]
+}

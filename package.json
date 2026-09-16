@@ -1,0 +1,42 @@
+{
+  "name": "@mnemosyne-plugins/melete",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Turn a course into a mind map, a schema, flashcards and a quiz you can rehearse. Import a PDF, a Word file or a photo of the lecture screen. Everything Melete makes is filed into its own vault, so Mnemosyne can recall it months later.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mnemosyne-OS/Melete"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:cartridge": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --max-warnings 0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mnemosyne_os/cartridge-sdk": "^0.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^5.4.1",
+    "vitest": "^1.6.1"
+  }
+}

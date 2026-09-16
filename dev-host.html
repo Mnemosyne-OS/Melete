@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Melete — dev host harness</title>
+    <style>
+      html, body { height: 100%; margin: 0; background: #0b0a10; color: #ece9f5;
+        font-family: Inter, system-ui, sans-serif; }
+      body { display: grid; grid-template-rows: auto 1fr; }
+      header { display: flex; align-items: center; gap: 12px; padding: 8px 14px;
+        border-bottom: 1px solid #2a2735; font-size: 12px; color: #9490a6; }
+      header strong { color: #ece9f5; font-size: 13px; }
+      header button, header select { font: inherit; font-size: 12px; color: #ece9f5;
+        background: #1e1b28; border: 1px solid #2a2735; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+      #log { margin-left: auto; font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+      iframe { border: 0; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <!--
+      dev-host.html — a FAKE Mnemosyne shell, for working on Melete's screens
+      without launching Electron.
+
+      It speaks the real postMessage protocol (MNEMO_PLUGIN_REQUEST →
+      MNEMO_PLUGIN_REPLY, MNEMO_PLUGIN_CHUNK/DONE for streams, and
+      MNEMO_CONFIG_UPDATE for theme + language), and answers with canned data.
+
+      🚨 It is a HARNESS, not a host. Nothing here proves anything about the
+      real shell: no permission is checked, no vault exists, no model runs. A
+      screen that works here has been shown to render — it has NOT been shown
+      to work in Mnemosyne. It is excluded from the build (vite only bundles
+      index.html) and must never be treated as evidence.
+    -->
+    <header>
+      <strong>dev host harness</strong>
+      <span>— fake shell, canned data, nothing real</span>
+      <select id="lang">
+        <option value="fr">fr</option>
+        <option value="en">en</option>
+        <option value="es">es</option>
+      </select>
+      <button id="reload">reload frame</button>
+      <span id="log">idle</span>
+    </header>
+    <iframe id="frame" src="./index.html?lang=fr"></iframe>
+
+    <script type="module">
+      const frame = document.getElementById('frame');
+      const log = document.getElementById('log');
+
+      const day = (offset = 0) => {
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, '0')}-${`${d.getDate()}`.padStart(2, '0')}`;
+      };
+
+      const COURSE_TEXT = `Les sources formelles du droit suisse
+
+La loi au sens large comprend la Constitution fédérale, les constitutions cantonales, les lois
+fédérales, cantonales et communales, ainsi que les ordonnances, les règlements et les traités
+internationaux. Elle se distingue de la loi au sens étroit, qui ne vise que les actes adoptés
+par le parlement selon la procédure législative ordinaire.
+
+La jurisprudence n'est pas une source formelle au sens strict : elle est l'application du droit
+par les tribunaux. Le Tribunal fédéral, en tranchant, précise le sens d'une règle et lie de fait
+les instances inférieures.
+
+La doctrine ne crée pas le droit. Elle propose, critique et systématise ; son autorité est
+persuasive et non contraignante.
+
+La hiérarchie des normes veut qu'une norme inférieure ne puisse contredire une norme
+supérieure. La Constitution fédérale prime les lois fédérales, qui priment les ordonnances.
+
+La bonne foi objective, à l'article 2 du Code civil, impose un comportement conforme à ce
+qu'un partenaire honnête et loyal pourrait attendre dans les circonstances.`;
+
+      const seededState = {
+        version: 1,
+        courses: [
+          {
+            id: 'course_demo', title: 'Sources du droit — cours 3', subject: 'Droit civil',
+            sourceKind: 'file', sourcePath: 'C:/cours/droit-civil-3.pdf',
+            chars: COURSE_TEXT.length, ocr: false, truncated: false,
+            chunks: 4, ingestedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(), retained: COURSE_TEXT,
+          },
+          {
+            id: 'course_photo', title: 'Amphi — hiérarchie des normes', subject: 'Droit civil',
+            sourceKind: 'photo', sourcePath: 'C:/photos/amphi.jpg',
+            chars: 480, ocr: true, truncated: false,
+            chunks: null, ingestedAt: null,
+            createdAt: new Date(Date.now() - 864e5).toISOString(), retained: null,
+          },
+        ],
+        maps: [{
+          id: 'map_demo', courseId: 'course_demo', title: 'Sources du droit',
+          createdAt: new Date().toISOString(),
+          root: {
+            id: 'n0', label: 'Sources du droit', children: [
+              { id: 'n1', label: 'La loi au sens large', note: 'Tous les actes normatifs écrits, fédéraux comme cantonaux.', quote: 'La loi au sens large comprend la Constitution fédérale, les constitutions cantonales…', children: [
+                { id: 'n1a', label: 'Constitution fédérale' },
+                { id: 'n1b', label: 'Lois fédérales' },
+                { id: 'n1c', label: 'Ordonnances et règlements' },
+                { id: 'n1d', label: 'Traités internationaux' },
+              ] },
+              { id: 'n2', label: 'La jurisprudence', note: "Application du droit par les tribunaux, pas source formelle au sens strict.", children: [
+                { id: 'n2a', label: 'Tribunal fédéral' },
+                { id: 'n2b', label: 'Effet de fait sur les instances' },
+              ] },
+              { id: 'n3', label: 'La doctrine', note: 'Autorité persuasive, jamais contraignante.', quote: 'La doctrine ne crée pas le droit.' },
+              { id: 'n4', label: 'Hiérarchie des normes', children: [
+                { id: 'n4a', label: 'Constitution > lois' },
+                { id: 'n4b', label: 'Lois > ordonnances' },
+              ] },
+            ],
+          },
+        }],
+        sketches: [{
+          id: 'sk_demo', courseId: 'course_demo', kind: 'compare', title: 'Jurisprudence et doctrine',
+          createdAt: new Date().toISOString(),
+          table: {
+            items: ['Jurisprudence', 'Doctrine'],
+            rows: [
+              { label: 'Crée du droit ?', cells: ['Applique le droit, le précise', 'Non — propose et systématise'] },
+              { label: 'Autorité', cells: ['Lie de fait les instances inférieures', 'Persuasive uniquement'] },
+              { label: 'Auteur', cells: ['Les tribunaux', 'Les auteurs et la recherche'] },
+            ],
+          },
+        }],
+        cards: [
+          { id: 'c1', courseId: 'course_demo', front: 'Que comprend la loi au sens large ?', back: 'La Constitution fédérale et les constitutions cantonales, les lois fédérales, cantonales et communales, les ordonnances, les règlements et les traités internationaux.', quote: 'La loi au sens large comprend la Constitution fédérale…', box: 2, dueAt: day(-1), reps: 3, lapses: 1, lastSeenAt: null },
+          { id: 'c2', courseId: 'course_demo', front: 'La doctrine crée-t-elle du droit ?', back: "Non. Elle propose, critique et systématise ; son autorité est persuasive et non contraignante.", box: 1, dueAt: day(0), reps: 1, lapses: 1, lastSeenAt: null },
+          { id: 'c3', courseId: 'course_demo', front: "Qu'impose la bonne foi objective (art. 2 CC) ?", back: "Un comportement conforme à ce qu'un partenaire honnête et loyal pourrait attendre dans les circonstances.", box: 5, dueAt: day(12), reps: 9, lapses: 0, lastSeenAt: null },
+          { id: 'c4', courseId: 'course_demo', front: 'Que dit la hiérarchie des normes ?', back: "Une norme inférieure ne peut contredire une norme supérieure.", box: 3, dueAt: day(2), reps: 4, lapses: 0, lastSeenAt: null },
+        ],
+        quizzes: [{
+          id: 'quiz_demo', courseId: 'course_demo', title: 'Sources du droit',
+          createdAt: new Date().toISOString(),
+          questions: [
+            { id: 'q1', prompt: "Laquelle de ces sources n'est PAS une source formelle au sens strict ?", choices: ['Une ordonnance fédérale', 'La jurisprudence', 'Un traité international', 'Une loi cantonale'], answer: 1, why: "La jurisprudence est l'application du droit par les tribunaux, non sa création.", topic: 'Sources formelles', quote: "La jurisprudence n'est pas une source formelle au sens strict" },
+            { id: 'q2', prompt: 'Quelle norme prime en cas de contradiction ?', choices: ['Une ordonnance', 'Une loi fédérale', 'La Constitution fédérale'], answer: 2, why: 'La Constitution fédérale prime les lois fédérales, qui priment les ordonnances.', topic: 'Hiérarchie des normes' },
+            { id: 'q3', prompt: "Quelle est l'autorité de la doctrine ?", choices: ['Contraignante', 'Persuasive'], answer: 1, why: "Elle propose et systématise sans créer de droit.", topic: 'Doctrine' },
+          ],
+        }],
+        attempts: [
+          { quizId: 'quiz_demo', courseId: 'course_demo', at: new Date(Date.now() - 864e5).toISOString(), correct: 2, total: 3, missed: ['Hiérarchie des normes'] },
+        ],
+        digests: [{
+          id: 'dig_demo', courseId: 'course_demo', createdAt: new Date().toISOString(),
+          keyPoints: [
+            'La loi au sens large couvre tous les actes normatifs écrits, la Constitution comprise.',
+            "La jurisprudence applique le droit ; elle ne le crée pas au sens formel.",
+            'La doctrine a une autorité persuasive et non contraignante.',
+            'Une norme inférieure ne peut jamais contredire une norme supérieure.',
+          ],
+          glossary: [
+            { term: 'Loi au sens étroit', definition: 'Les seuls actes adoptés par le parlement selon la procédure législative ordinaire.' },
+            { term: 'Bonne foi objective', definition: "Le comportement qu'un partenaire honnête et loyal pourrait attendre dans les circonstances (art. 2 CC)." },
+          ],
+        }],
+        progress: {
+          xp: 340,
+          days: [day(-3), day(-2), day(-1), day(0)],
+          badges: ['first-course', 'first-map', 'perfect-quiz'],
+          dailyGoal: 20,
+          today: { day: day(0), reviewed: 6 },
+        },
+      };
+
+      let state = seededState;
+
+      /** Canned model replies, chosen by what the prompt asked for. */
+      function cannedInfer(payload) {
+        const p = String(payload?.prompt ?? '');
+        if (p.includes('describe its structure')) return JSON.stringify({
+          title: 'Sources du droit', subject: 'Droit civil', teacher: '', level: 'L1',
+          sections: [
+            { title: 'La loi au sens large', document: 'Sources du droit — cours 3',
+              anchor: 'La loi au sens large comprend la Constitution' },
+            { title: 'La jurisprudence', document: 'Sources du droit — cours 3',
+              anchor: "La jurisprudence n'est pas une source formelle" },
+            { title: 'La doctrine', document: 'Sources du droit — cours 3',
+              anchor: 'La doctrine ne cree pas le droit' },
+            { title: 'La hierarchie des normes', document: 'Sources du droit — cours 3',
+              anchor: 'La hierarchie des normes veut' },
+          ],
+        });
+        if (p.includes('mind map')) return JSON.stringify(seededState.maps[0]);
+        if (p.includes('comparison table')) return JSON.stringify(seededState.sketches[0]);
+        if (p.includes('flashcards')) return JSON.stringify({ cards: [{ front: 'Nouvelle carte générée', back: 'Réponse tirée du passage.', quote: 'La doctrine ne crée pas le droit.' }] });
+        if (p.includes('multiple-choice')) return JSON.stringify(seededState.quizzes[0]);
+        if (p.includes('revision sheet')) return JSON.stringify({
+          title: 'Les sources du droit',
+          concepts: [
+            { id: 'c1', title: 'Loi au sens large', line: 'Constitution, lois, ordonnances, traites.', quote: 'La loi au sens large comprend la Constitution federale' },
+            { id: 'c2', title: 'Loi au sens etroit', line: 'Les seuls actes votes par le parlement.' },
+            { id: 'c3', title: 'Jurisprudence', line: "Application du droit par les tribunaux, pas creation." },
+            { id: 'c4', title: 'Doctrine', line: 'Propose et systematise, autorite persuasive seulement.' },
+            { id: 'c5', title: 'Hierarchie des normes', line: "Une norme inferieure ne peut contredire une superieure." },
+          ],
+          links: [
+            { from: 'c1', to: 'c2', label: 'contient' },
+            { from: 'c3', to: 'c1', label: 'applique' },
+            { from: 'c5', to: 'c1', label: 'ordonne' },
+          ],
+          glossary: [
+            { term: 'Bonne foi objective', definition: "Le comportement qu'un partenaire honnete et loyal pourrait attendre (art. 2 CC)." },
+            { term: 'Ordonnance', definition: 'Acte normatif adopte par le gouvernement, subordonne a la loi.' },
+          ],
+          remember: [
+            'La loi au sens large couvre tous les actes normatifs ecrits, Constitution comprise.',
+            'Ni la jurisprudence ni la doctrine ne creent le droit au sens formel.',
+          ],
+        });
+        if (p.includes('Summarise')) return JSON.stringify(seededState.digests[0]);
+        if (p.includes('procedure')) return JSON.stringify({ title: 'Contrôle de conformité', steps: [
+          { id: 's1', label: 'Identifier la norme appliquée' },
+          { id: 's2', label: 'Existe-t-il une norme supérieure ?', branch: { yes: 'comparer les deux', no: 'appliquer la norme' } },
+          { id: 's3', label: 'Écarter la norme inférieure contraire' },
+        ] });
+        if (p.includes('chronology')) return JSON.stringify({ title: 'Repères', events: [
+          { when: '1848', label: 'Première Constitution fédérale' },
+          { when: '1874', label: 'Révision totale' },
+          { when: '1907', label: 'Code civil suisse' },
+        ] });
+        return '{}';
+      }
+
+      const HANDLERS = {
+        'state.get': () => state,
+        'state.set': (p) => { state = p.state; return { ok: true }; },
+        'vault.sandbox.ensure': () => ({ vault: 'APP-MNEMOSYNE-PLUGINS-MELETE', created: false, unlocked: false }),
+        'vault.sandbox.describeTile': () => ({ tile: {} }),
+        'vault.sandbox.saveImage': () => ({ success: true }),
+        'mnemosyne.ingest': () => ({ chronicleId: 'fake' }),
+        'model.getStatus': () => ({ mode: 'local', localReady: true }),
+        'model.infer': (p) => ({ success: true, text: cannedInfer(p) }),
+        'dialog.selectFile': () => ({ success: true, filePath: 'C:/cours/droit-civil-4.pdf' }),
+        'dialog.selectFolder': () => 'C:/Users/demo/Desktop',
+        'dialog.writeFile': () => ({ success: true }),
+        'dialog.readFile': () => ({ success: true, isBinary: true, content: 'data:image/png;base64,iVBORw0KGgo=' }),
+        'shell.openExternal': () => ({ success: true }),
+      };
+
+      window.addEventListener('message', (event) => {
+        const d = event.data;
+        if (!d || d.type !== 'MNEMO_PLUGIN_REQUEST') return;
+        log.textContent = d.action;
+
+        // Streamed actions answer with chunks, then DONE — the same shape the
+        // real bridge uses for reader.extractDocument's OCR progress.
+        if (d.action === 'reader.extractDocument') {
+          const post = (msg) => frame.contentWindow.postMessage({ ...msg, messageId: d.messageId }, '*');
+          let page = 0;
+          const tick = setInterval(() => {
+            page += 1;
+            post({ type: 'MNEMO_PLUGIN_CHUNK', chunk: JSON.stringify({ filePath: d.payload.filePath, page, pages: 4 }) });
+            if (page >= 4) {
+              clearInterval(tick);
+              post({ type: 'MNEMO_PLUGIN_DONE', data: { success: true, data: { text: COURSE_TEXT, name: 'droit-civil-4.pdf', ocrUsed: false, truncated: false } } });
+            }
+          }, 350);
+          return;
+        }
+
+        const fn = HANDLERS[d.action];
+        const reply = fn
+          ? { type: 'MNEMO_PLUGIN_REPLY', messageId: d.messageId, success: true, data: fn(d.payload ?? {}) }
+          : { type: 'MNEMO_PLUGIN_REPLY', messageId: d.messageId, success: false, error: `harness has no answer for "${d.action}"` };
+        // A real host is never instantaneous; a small delay keeps the loading
+        // states honest instead of flashing past them.
+        setTimeout(() => frame.contentWindow.postMessage(reply, '*'), 120);
+      });
+
+      const TOKENS = {
+        '--bg-void': '#0e0d13', '--bg-panel': '#17151f', '--bg-surface': '#1e1b28',
+        '--text-primary': '#ece9f5', '--text-muted': '#9490a6', '--border-subtle': '#2a2735',
+        '--accent': '#7c6bf5', '--accent-green': '#3fbf87', '--accent-red': '#e0616f',
+        '--accent-amber': '#e0a54a',
+      };
+
+      const push = () => frame.contentWindow.postMessage(
+        { type: 'MNEMO_CONFIG_UPDATE', theme: 'dark', lang: document.getElementById('lang').value, tokens: TOKENS },
+        '*',
+      );
+
+      frame.addEventListener('load', () => setTimeout(push, 60));
+      document.getElementById('lang').addEventListener('change', push);
+      document.getElementById('reload').addEventListener('click', () => { frame.contentWindow.location.reload(); });
+    </script>
+  </body>
+</html>
