@@ -27,16 +27,13 @@ one you configured in the app. It is free, and it always will be.
 >
 > [![Download latest release](https://img.shields.io/badge/⬇%20Download-Mnemosyne%20OS%20latest-0ea5e9?style=for-the-badge)](https://github.com/Mnemosyne-OS/Mnemosyne-Neural-OS/releases/latest) &nbsp; [![Mnemosyne OS repository](https://img.shields.io/badge/GitHub-Mnemosyne%20OS-181717?style=for-the-badge&logo=github)](https://github.com/Mnemosyne-OS/Mnemosyne-Neural-OS)
 
-> [!WARNING]
-> **Melete is at 0.1.0, and nobody has used it yet.**
+> [!NOTE]
+> **Melete is at 0.1.0, and it has been used on Windows only.**
 >
-> What has been observed: 179 tests pass, on Windows, and every screen renders
-> against a local harness that fakes the host and answers with canned data.
->
-> What nobody has seen: Melete running inside Mnemosyne OS itself. Not one
-> permission has been granted by a real host, not one vault has been created,
-> not one course has been imported by a student. macOS and Linux are untested.
-> If it breaks on your setup, that is the interesting case. Open an issue.
+> It runs inside Mnemosyne OS, it carries 179 tests, and it has been driven by
+> hand on real courses. macOS and Linux have never been exercised, and the
+> version number says the rest: this is a first release. If it breaks on your
+> setup, that is the interesting case. Open an issue.
 
 ---
 
@@ -150,8 +147,7 @@ worked on in a browser tab.
 
 ⚠️ It proves a screen renders. It proves nothing about the real host: no
 permission is checked, no vault exists, no model runs. It is excluded from the
-build, and it is the reason the warning at the top of this page is worded the
-way it is.
+build, and a screen that works there still has to be tried in the app.
 
 ### Layout
 
