@@ -28,10 +28,10 @@ one you configured in the app. It is free, and it always will be.
 > [![Download latest release](https://img.shields.io/badge/⬇%20Download-Mnemosyne%20OS%20latest-0ea5e9?style=for-the-badge)](https://github.com/Mnemosyne-OS/Mnemosyne-Neural-OS/releases/latest) &nbsp; [![Mnemosyne OS repository](https://img.shields.io/badge/GitHub-Mnemosyne%20OS-181717?style=for-the-badge&logo=github)](https://github.com/Mnemosyne-OS/Mnemosyne-Neural-OS)
 
 > [!NOTE]
-> **Melete is at 0.1.0, and it has been used on Windows only.**
+> **Melete is at 0.1.1, and it has been used on Windows only.**
 >
 > It runs inside Mnemosyne OS. The mind map, the schema, the flashcards and the
-> quiz have all been used on real courses. It carries 179 tests. macOS and Linux
+> quiz have all been used on real courses. It carries 181 tests. macOS and Linux
 > have never been exercised, and the version number says the rest: this is a
 > first release. If it breaks on your setup, that is the interesting case. Open
 > an issue.
@@ -123,6 +123,10 @@ library, decks and progress live there. When it fills up, Melete releases the
 kept **source text** of the oldest courses, re-readable ones first, and says
 so. It never sheds a card, a map or a quiz.
 
+Up to 0.1.0, Melete did not read this blob back when it opened: the library
+was saved, but came back empty after a restart, and the next save wrote the
+empty library over it. 0.1.1 reads it back.
+
 ---
 
 ## Building it yourself
@@ -162,7 +166,7 @@ dev-host.html     the fake shell
 
 ## Tests
 
-179 tests. They pin the decisions that are easy to break by accident. A parser
+181 tests. They pin the decisions that are easy to break by accident. A parser
 returns null rather than padding a short answer. The streak is recomputed
 against today rather than trusted from the file. The storage budget sheds
 source text in a declared order, and never a card. Four generation failures

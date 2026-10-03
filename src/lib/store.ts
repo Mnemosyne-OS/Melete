@@ -194,11 +194,23 @@ function emit(): void {
   listeners.forEach((fn) => fn());
 }
 
+/**
+ * The blob inside what `state.get` answers.
+ *
+ * The host answers `{ state, updatedAt }`. Handed to `hydrate` as it came,
+ * the envelope has no `version`, so every load started from an empty
+ * library and the next save wrote that empty library over the real one.
+ */
+export function stateOf(answer: unknown): unknown {
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return null;
+  const o = answer as Record<string, unknown>;
+  return 'state' in o && 'updatedAt' in o ? o.state : null;
+}
+
 /** Reads the durable blob once. Rejecting here is survivable — the UI shows an
  *  error and REFUSES to save, rather than starting from a blank library. */
 export async function load(): Promise<{ fresh: boolean; migrated: boolean }> {
-  const raw = await readState<unknown>();
-  const { state, fresh, migrated } = hydrate(raw);
+  const { state, fresh, migrated } = hydrate(stateOf(await readState<unknown>()));
   current = state;
   loaded = true;
   log.info('store', fresh ? 'no usable saved state — starting fresh' : 'state read', {

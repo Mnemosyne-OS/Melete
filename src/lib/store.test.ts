@@ -9,6 +9,9 @@ vi.mock('./host', () => ({
   writeState: (...a: unknown[]) => writeState(...a),
 }));
 
+/** What the real host answers to `state.get`: the blob inside an envelope. */
+const stored = (state: unknown) => ({ state, updatedAt: '2026-09-02T01:37:32.850Z' });
+
 type Store = typeof import('./store');
 let store: Store;
 
@@ -164,7 +167,7 @@ describe('mutate', () => {
   });
 
   it('writes once the state has been read', async () => {
-    readState.mockResolvedValue({ ...emptyState() });
+    readState.mockResolvedValue(stored({ ...emptyState() }));
     await store.load();
     const res = await store.mutate((s) => ({ ...s, progress: { ...s.progress, xp: 10 } }));
     expect(res.ok).toBe(true);
@@ -173,7 +176,7 @@ describe('mutate', () => {
   });
 
   it('reports a failed write instead of pretending it landed', async () => {
-    readState.mockResolvedValue({ ...emptyState() });
+    readState.mockResolvedValue(stored({ ...emptyState() }));
     await store.load();
     writeState.mockRejectedValue(new Error('TOO_LARGE'));
     const res = await store.mutate((s) => ({ ...s, progress: { ...s.progress, xp: 1 } }));
@@ -182,7 +185,7 @@ describe('mutate', () => {
   });
 
   it('tells subscribers before the write has finished', async () => {
-    readState.mockResolvedValue({ ...emptyState() });
+    readState.mockResolvedValue(stored({ ...emptyState() }));
     await store.load();
     const seen: number[] = [];
     const off = store.subscribe(() => seen.push(store.getState().progress.xp));
@@ -192,9 +195,21 @@ describe('mutate', () => {
   });
 
   it('reports a v1 library as migrated so the UI can say so once', async () => {
-    readState.mockResolvedValue({ version: 1, courses: [{ id: 'c1', title: 'Vieux' }] });
+    readState.mockResolvedValue(stored({ version: 1, courses: [{ id: 'c1', title: 'Vieux' }] }));
     const res = await store.load();
     expect(res.migrated).toBe(true);
     expect(store.getState().courses[0]?.docs).toHaveLength(1);
+  });
+
+  it('reads the library inside the envelope the host answers', async () => {
+    readState.mockResolvedValue(stored({ ...emptyState(), courses: [course('1', [])] }));
+    const res = await store.load();
+    expect(res.fresh).toBe(false);
+    expect(store.getState().courses).toHaveLength(1);
+  });
+
+  it('starts fresh when nothing was ever stored', async () => {
+    readState.mockResolvedValue({ state: null, updatedAt: null });
+    expect((await store.load()).fresh).toBe(true);
   });
 });

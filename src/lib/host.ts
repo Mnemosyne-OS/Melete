@@ -202,8 +202,17 @@ export async function infer(payload: Omit<ModelInferPayload, 'disableRAG'>): Pro
 
 // ── Durable state (doc 73) ──────────────────────────────────────────────────
 
-export function readState<T>(): Promise<T | null> {
-  return invokeHost<T | null>('state.get');
+/**
+ * What `state.get` answers: the stored blob inside an envelope, never the
+ * blob itself. `state` is null when nothing was ever stored.
+ */
+export interface StoredState<T> {
+  state: T | null;
+  updatedAt: string | null;
+}
+
+export function readState<T>(): Promise<StoredState<T> | null> {
+  return invokeHost<StoredState<T> | null>('state.get');
 }
 
 export function writeState(state: unknown): Promise<unknown> {
