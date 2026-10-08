@@ -1,0 +1,16 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Melete">
+  <defs>
+    <linearGradient id="melete-grad" x1="6" y1="42" x2="42" y2="6" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <path d="M8 40L24 24" stroke="url(#melete-grad)" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M24 24C24 14 31 7 41 6C40 16 33 23 24 24Z" fill="url(#melete-grad)" fill-opacity="0.16" stroke="url(#melete-grad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27 21L37 10" stroke="url(#melete-grad)" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M8 40H18" stroke="url(#melete-grad)" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="11" cy="14" r="3" fill="url(#melete-grad)"/>
+  <circle cx="5" cy="24" r="2" fill="url(#melete-grad)"/>
+  <circle cx="19" cy="6" r="2" fill="url(#melete-grad)"/>
+  <path d="M11 14L5 24M11 14L19 6" stroke="url(#melete-grad)" stroke-width="1.6" stroke-linecap="round"/>
+</svg>
